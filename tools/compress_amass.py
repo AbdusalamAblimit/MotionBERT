@@ -2,6 +2,8 @@ import numpy as np
 import os
 import pickle
 
+import joblib
+from tqdm import tqdm
 raw_dir = './data/AMASS/amass_202203/'
 processed_dir = './data/AMASS/amass_fps60'
 os.makedirs(processed_dir, exist_ok=True)
@@ -30,7 +32,7 @@ all_motions = []
 
 with open('data/AMASS/fps.csv', 'w') as f:
     print('fname_new, len_ori, fps, len_new', file=f)
-    for fname in sorted(files):
+    for fname in tqdm(sorted(files)):
         try:
             raw_x = np.load(fname)
             x = dict(raw_x)
@@ -58,5 +60,5 @@ print('poseFrame:', length)
 print('motions:', len(fnames))
 
 with open("data/AMASS/all_motions_fps%d.pkl" % target_fps, "wb") as myprofile:  
-    pickle.dump(all_motions, myprofile)
+    joblib.dump(all_motions, myprofile)
     

@@ -3,8 +3,10 @@ import numpy as np
 import os
 from os import path as osp
 from human_body_prior.body_model.body_model import BodyModel
+from tqdm import tqdm
 import copy
-import pickle
+# import pickle
+import joblib
 import ipdb
 import pandas as pd
 
@@ -16,16 +18,16 @@ J_reg_dir = 'data/AMASS/J_regressor_h36m_correct.npy'
 all_motions = 'data/AMASS/all_motions_fps60.pkl'
 
 file = open(all_motions, 'rb')
-motion_data = pickle.load(file)
+motion_data = joblib.load(file)
 J_reg = np.load(J_reg_dir)
 all_joints = []
 
 max_len = 2916
 with open('data/AMASS/clip_list.csv', 'w') as f:
     print('clip_id, fname, clip_len', file=f)
-    for i, bdata in enumerate(motion_data):
-        if i%200==0:
-            print(i, 'seqs done.')
+    for i, bdata in tqdm(enumerate(motion_data),total=len(motion_data)):
+        # if i%200==0:
+        #     print(i, 'seqs done.')
         comp_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         subject_gender = bdata['gender']
         if (str(subject_gender) != 'female') and (str(subject_gender) != 'male'):
@@ -60,5 +62,5 @@ with open('data/AMASS/clip_list.csv', 'w') as f:
             all_joints.append(kpts)
             print(len(all_joints)-1, ',', fname_list[i], ',', end-start, file=f)
     fileName = open('data/AMASS/amass_joints_h36m_60.pkl','wb')
-    pickle.dump(all_joints, fileName)
+    joblib.dump(all_joints, fileName)
     print(len(all_joints))

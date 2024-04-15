@@ -1,6 +1,6 @@
 import numpy as np
 import os, sys
-import pickle
+import joblib
 import yaml
 from easydict import EasyDict as edict
 from typing import Any, IO
@@ -64,6 +64,6 @@ def ensure_dir(path):
         
 def read_pkl(data_url):
     file = open(data_url,'rb')
-    content = pickle.load(file)
+    content = joblib.load(file)
     file.close()
     return content

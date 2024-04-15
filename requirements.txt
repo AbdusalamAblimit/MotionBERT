@@ -3,10 +3,13 @@ tqdm
 easydict
 prettytable
 chumpy
-opencv-python
+opencv-python-headless
 imageio-ffmpeg
-matplotlib==3.1.1
+matplotlib
 roma
 ipdb
 pytorch-metric-learning                         # For one-shot action recognition
 smplx[all]                                      # For mesh recovery
+pandas
+pyyaml
+joblib

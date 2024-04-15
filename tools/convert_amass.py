@@ -1,7 +1,8 @@
 import os
 import sys
 import copy
-import pickle
+# import pickle
+import joblib
 import ipdb
 import torch
 import numpy as np
@@ -10,14 +11,14 @@ from lib.utils.utils_data import split_clips
 from tqdm import tqdm
 
 fileName = open('data/AMASS/amass_joints_h36m_60.pkl','rb')
-joints_all = pickle.load(fileName)
+joints_all = joblib.load(fileName)
 
 joints_cam = []
 vid_list = []
 vid_len_list = []
 scale_factor = 0.298
 
-for i, item in enumerate(joints_all): # (17,N,3):
+for i, item in tqdm(enumerate(joints_all),total=len(joints_all)): # (17,N,3):
     item = item.astype(np.float32)
     vid_len = item.shape[1]
     vid_len_list.append(vid_len)
@@ -62,6 +63,6 @@ for i in tqdm(range(num_clips)):
             "data_label": motion
         }
     with open(os.path.join(save_path, "%08d.pkl" % i), "wb") as myprofile:  
-        pickle.dump(data_dict, myprofile)
+        joblib.dump(data_dict, myprofile)
 
 

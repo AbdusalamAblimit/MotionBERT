@@ -3,7 +3,7 @@ import numpy as np
 import argparse
 import errno
 import math
-import pickle
+import joblib
 import tensorboardX
 from tqdm import tqdm
 from time import time
@@ -154,7 +154,7 @@ def evaluate(args, model_pos, test_loader, datareader):
         
 def train_epoch(args, model_pos, train_loader, losses, optimizer, has_3d, has_gt):
     model_pos.train()
-    for idx, (batch_input, batch_gt) in tqdm(enumerate(train_loader)):    
+    for idx, (batch_input, batch_gt) in tqdm(enumerate(train_loader),total = len(train_loader)):    
         batch_size = len(batch_input)        
         if torch.cuda.is_available():
             batch_input = batch_input.cuda()
@@ -234,8 +234,11 @@ def train_with_config(args, opts):
           'persistent_workers': True
     }
 
-    train_dataset = MotionDataset3D(args, args.subset_list, 'train')
-    test_dataset = MotionDataset3D(args, args.subset_list, 'test')
+    # train_dataset = MotionDataset3D(args, args.subset_list, 'train')
+    # test_dataset = MotionDataset3D(args, args.subset_list, 'test')
+    train_dataset = MotionDataset3D(args, args.train_subset_list, 'train')
+    test_dataset = MotionDataset3D(args, args.test_subset_list, 'test')
+
     train_loader_3d = DataLoader(train_dataset, **trainloader_params)
     test_loader = DataLoader(test_dataset, **testloader_params)
     
@@ -294,12 +297,14 @@ def train_with_config(args, opts):
         else:
             print('INFO: Training on {}(3D) batches'.format(len(train_loader_3d)))
         if opts.resume:
-            st = checkpoint['epoch']
+            if 'epoch' in checkpoint and checkpoint['epoch'] is not None:
+                st = checkpoint['epoch']
             if 'optimizer' in checkpoint and checkpoint['optimizer'] is not None:
                 optimizer.load_state_dict(checkpoint['optimizer'])
             else:
-                print('WARNING: this checkpoint does not contain an optimizer state. The optimizer will be reinitialized.')            
-            lr = checkpoint['lr']
+                print('WARNING: this checkpoint does not contain an optimizer state. The optimizer will be reinitialized.') 
+            if 'lr' in checkpoint and checkpoint['lr'] is not None:           
+                lr = checkpoint['lr']
             if 'min_loss' in checkpoint and checkpoint['min_loss'] is not None:
                 min_loss = checkpoint['min_loss']
                 
